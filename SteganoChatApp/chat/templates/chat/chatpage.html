@@ -1,0 +1,125 @@
+<html style="box-sizing: border-box;">
+<body style="font-family: Helvetica, sans-serif;">
+{% include "chat/dashboard.html" %}
+	<div
+	class="chat__item__container"
+	id="id_chat_item_container"
+	style="font-size: 20px; border: solid black 2px;">
+		<br />
+		<p style="padding: 10px; border: none; border-radius: 3px; font-size: 1em;">Upload image</p>
+		<div class="center">
+			<form>
+				<h4 id="errorMessage"></h4>
+				<input type="file" id="ImageFile">
+				<p></p>
+				<p>Preview image</p>
+				<img style="height: 100px; width: 100px; border-radius: 50px;" id="preview">
+				<div style="font-size: 10PX;" id="info">
+					<i>File Info:</i>
+					<p>Image Name: <span class="img-name"></span></p> <p>Image Type: <span class="img-type"></span></p> <p>Image Size: <span class="img-size"></span></p>    
+				</div>
+			</form>
+		</div>
+		<form action="mailto:you@yourdmainhere.com" method="post" enctype="text/plain">
+			FirstName: <input type="text" name="FirstName">
+			Email: <input type="text" name="Email">
+			<input type="submit" name="submit" value="Submit">
+		</form>
+		<!--<input type="file" id="id_coverimage_send_input" name="filename">
+		<button style="margin-left: 10px; background: #91C499; color: black; font-weight: bold; cursor: pointer;" type="submit">Upload</button>-->
+		<p>Enter your text here </p>
+		<input style="padding: 10px; border: none; border-radius: 3px; font-size: 1em;" type="text" id="id_message_send_input" />
+		<br>
+		<br>
+		<button style="margin-left: 10px; background: #91C499; color: black; font-weight: bold; cursor: pointer;" type="submit" id="id_message_send_button">Send</button>
+		<br />
+		<br />
+		</div>
+	<script>
+
+		//IMAGE DETAILS AND PREVIEW
+
+		const img = document.getElementById("ImageFile");
+		let info = document.getElementById("info");
+		let errorMessage = document.getElementById("errorMessage");
+		const imagePreview = document.getElementById("preview");
+		img.addEventListener("change", (e) => {
+    		const imgDetails = document.querySelector("input[type=file]").files[0];
+    		if (imgDetails) {
+        		info.style.display = "block";
+        		document.querySelector(".img-name").innerText = imgDetails.name;
+        		document.querySelector(".img-type").innerText = imgDetails.type;
+        		document.querySelector(".img-size").innerText = imgDetails.size + "bytes";
+        		previewImage(imgDetails);
+    		} else {
+        		imagePreview.src = ""
+        		errorMessage.innerText = "Please select a picture";
+        		console.error("Please select a picture");
+        		info.style.display = "none";
+    		}
+
+		})
+
+		function previewImage(imgD) {
+    		const reader = new FileReader();
+
+    		// PREVIEW
+    		reader.addEventListener("load", function () {
+        	imagePreview.src = reader.result;
+    		})
+			// CHECK IF THERE IS SELECTION 
+    		if (imgD) {
+        		// CHECK IF THE FILE IS AN IMAGE
+        		if (imgD.type === "image/jpeg" || imgD.type == "image/jpg" || imgD.type == "image/gif" || imgD.type == "image/png") {
+            		errorMessage.innerText = "";
+
+            		// CONVERTS FILE TO BASE 64
+            		reader.readAsDataURL(imgD);
+        		} else {
+            		errorMessage.innerText = "File type should be an image"
+	            	imagePreview.src = "";
+    	    	}
+    		}
+    		// IF NO IMAGE
+    		else {
+        		imagePreview.src = ""
+        		errorMessage.innerText = "Please select a picture";
+    		}
+		}
+
+		//WEBSOCKET FOR CHAT
+
+		const chatSocket = new WebSocket("ws://" + window.location.host + "/");
+		chatSocket.onopen = function (e) {
+			console.log("The connection was setup successfully !");
+		};
+		chatSocket.onclose = function (e) {
+			console.log("Something unexpected happened !");
+		};
+
+		document.querySelector("#id_message_send_input").focus();
+		document.querySelector("#id_message_send_input").onkeyup = function (e) {
+		if (e.keyCode == 13) {
+			document.querySelector("#id_message_send_button").click();
+			}
+		};
+
+		document.querySelector("#id_message_send_button").onclick = function (e) {
+
+			var messageInput = document.querySelector("#id_message_send_input").value;
+
+			chatSocket.send(JSON.stringify({ message: messageInput, username : "{{request.user.username}}"}));
+		};
+
+		chatSocket.onmessage = function (e) {
+			
+			const data = JSON.parse(e.data);
+			var div = document.createElement("div");
+			div.innerHTML = data.username + " : " + data.message;
+			document.querySelector("#id_message_send_input").value = "";
+			document.querySelector("#id_chat_item_container").appendChild(div);
+	};
+	
+	</script>
+</body>
+</html>

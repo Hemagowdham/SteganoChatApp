@@ -1,0 +1,33 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>Encode - Text Steganography, Hiding text using images</title>
+</head>
+<body>
+{% include "chat/dashboard.html" %}
+    <div class="container mt-5">
+        <h2 class="text-center">Encode: Hide a secret inside an image</h2>
+        <form action="{% url 'encode' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="image">Select an Image:</label>
+                <input type="file" class="form-control-file" id="image" name="image" required>
+            </div>
+            <div class="form-group">
+                <label for="text">Enter the Text:</label>
+                <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Hide</button>
+        </form>
+
+        {% if message %}
+            <div class="alert alert-success mt-3">
+                <h4>Encoded Successfully:</h4>
+                <p>{{ message }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

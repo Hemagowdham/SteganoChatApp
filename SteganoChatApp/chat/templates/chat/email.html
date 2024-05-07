@@ -1,0 +1,30 @@
+{% load static %}
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Email with attachment</title>
+</head>
+<body>
+{% include "chat/dashboard.html" %}
+    <div class="container mt-5">
+    
+        <h2 class="text-center">Chat: Send stegano image to another user via mail</h2>
+
+	    <form class="mt-5" action="{% url 'email' %}" method = "post" enctype="multipart/form-data">
+		    {% csrf_token %}
+		    {{ form.as_p }}
+		    <button type="submit" class="btn btn-primary">Send</button>
+	    </form>
+
+    
+
+        {% if message %}
+            <div class="alert alert-success mt-3">
+                <h4>Email sent Successfully:</h4>
+                <p>{{ message }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>Decryption - Image Steganography Project</title>
+</head>
+<body>
+{% include "chat/dashboard.html" %}
+    <div class="container mt-5">
+        <h2 class="text-center">Decode: Decode secret from an image</h2>
+        <form class="mt-5" action="{% url 'decode' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="image">Encoded Image:</label>
+                <input type="file" name="image" id="image" class="form-control-file">
+            </div>
+            <input type="submit" value="Decode" class="btn btn-primary">
+        </form>
+        {% if text %}
+            <div class="alert alert-success mt-3">
+                <h4>Decoded Text:</h4>
+                <p>{{ text }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+
+</body>
+</html>
